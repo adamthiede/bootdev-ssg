@@ -32,6 +32,20 @@ class HTMLNode:
             return ""
         rv=""
         for prop in self.props:
-            rv+=f'{prop}="{self.props[prop]}" '
-        return rv.strip()
+            rv+=f' {prop}="{self.props[prop]}"'
+        return rv
 
+class LeafNode(HTMLNode):
+    def __init__(self, tag=None, value=None, props=None):
+        super().__init__(tag=tag, value=value, children=None, props=props)
+
+    def to_html(self):
+        if self.value is None:
+            raise Exception(ValueError("Provide a value to the leaf node"))
+        if self.tag is None:
+            return self.value
+        else:
+            return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
