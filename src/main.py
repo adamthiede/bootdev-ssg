@@ -1,44 +1,9 @@
 from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
-def text_node_to_html_node(text_node):
-    valid_types=["text","bold","italic","code","link","image"]
-    match text_node.text_type:
-        case "text":
-            return LeafNode(None, text_node.text)
-        case "bold":
-            return LeafNode("b", text_node.text)
-        case "italic":
-            return LeafNode("i", text_node.text)
-        case "code":
-            return LeafNode("code", text_node.text)
-        case "link":
-            return LeafNode("a", text_node.text, {"href": text_node.url})
-        case "image":
-            return LeafNode("img", None, {"alt": text_node.text, "src": text_node.url})
-        case _:
-            raise Exception(ValueError(f"{text_node.text_type} not in valid_types: {valid_types}"))
+from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links
 
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    nodes=[]
-    for node in old_nodes:
-        if isinstance(node,TextNode):
-            if node.text.count(delimiter)%2!=0:
-                raise Exception(SyntaxError(f"Odd number of delimiters: '{delimiter}'"))
-            n_split=node.text.split(delimiter)
-            format=False
-            if node.text.startswith(delimiter):
-                format=True
-                n_split.pop(0)
-            for n in n_split:
-                if format:
-                    nodes.append(TextNode(n,text_type))
-                else:
-                    nodes.append(TextNode(n,"text"))
-                format=not format
-        else:
-            nodes.append(node)
-    return nodes
+
 
 def test_some_nodes():
     ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'})
@@ -63,11 +28,14 @@ def test_some_nodes():
 def main():
     node = TextNode("This is text with a `code block` word", "text")
     node2 = TextNode("`Code block` begins the thing", "text")
-    node3 = TextNode("`Code block`  but wrong `  begins the thing", "text")
-    new_nodes = split_nodes_delimiter([node,node2,node3], "`", "code")
+    new_nodes = split_nodes_delimiter([node,node2], "`", "code")
     for node in new_nodes:
         print(node)
-    print(isinstance(node,TextNode))
+    text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)"
+    print(extract_markdown_images(text))
+
+    text2 = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+    print(extract_markdown_links(text2))
 
 
 if __name__ == "__main__":
