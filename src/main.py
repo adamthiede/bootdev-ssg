@@ -19,6 +19,27 @@ def text_node_to_html_node(text_node):
         case _:
             raise Exception(ValueError(f"{text_node.text_type} not in valid_types: {valid_types}"))
 
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    nodes=[]
+    for node in old_nodes:
+        if isinstance(node,TextNode):
+            if node.text.count(delimiter)%2!=0:
+                raise Exception(SyntaxError(f"Odd number of delimiters: '{delimiter}'"))
+            n_split=node.text.split(delimiter)
+            format=False
+            if node.text.startswith(delimiter):
+                format=True
+                n_split.pop(0)
+            for n in n_split:
+                if format:
+                    nodes.append(TextNode(n,text_type))
+                else:
+                    nodes.append(TextNode(n,"text"))
+                format=not format
+        else:
+            nodes.append(node)
+    return nodes
+
 def test_some_nodes():
     ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'})
     ln2=LeafNode("p", "This is a paragraph of text.")
@@ -35,12 +56,19 @@ def test_some_nodes():
     parent=ParentNode("p", [leaf1, leaf2])
     parent2=ParentNode("p", None)
     print(parent.to_html())
-
-
-def main():
     tn=TextNode('This is a text node', 'bold', 'https://www.boot.dev')
     print(tn)
     print(text_node_to_html_node(tn).to_html())
+
+def main():
+    node = TextNode("This is text with a `code block` word", "text")
+    node2 = TextNode("`Code block` begins the thing", "text")
+    node3 = TextNode("`Code block`  but wrong `  begins the thing", "text")
+    new_nodes = split_nodes_delimiter([node,node2,node3], "`", "code")
+    for node in new_nodes:
+        print(node)
+    print(isinstance(node,TextNode))
+
 
 if __name__ == "__main__":
     main()
