@@ -47,7 +47,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 if format:
                     nodes.append(TextNode(n,text_type))
                 else:
-                    nodes.append(TextNode(n,"text"))
+                    nodes.append(TextNode(n,node.text_type))
                 format=not format
         else:
             nodes.append(node)
@@ -91,3 +91,7 @@ def split_nodes_image(old_nodes):
             nodes.append(TextNode(node_text,"text"))
     return nodes
 
+def text_to_textnodes(text):
+    tn=TextNode(text,"text")
+    nodes=split_nodes_link(split_nodes_image(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter([tn],"**","bold"),"*","italic"),"`","code")))
+    return nodes

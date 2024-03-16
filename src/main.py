@@ -1,7 +1,7 @@
 from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
-from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image
+from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
 
 def test_some_nodes():
     ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'})
@@ -22,16 +22,11 @@ def test_some_nodes():
     tn=TextNode('This is a text node', 'bold', 'https://www.boot.dev')
     print(tn)
     print(text_node_to_html_node(tn).to_html())
-
-def main():
-    text = "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and ![another](https://i.imgur.com/dfsdkjfd.png)"
-
     text3 = "starting text [zzzzzz](ftp://1.1.3.51/asdf.doc) and [qqq](gopher://hole) ending text"
     t3=TextNode(text3,"text")
     ll=split_nodes_link([t3])
     for link in ll:
         print(link)
-
     print("---")
 
     text2 = "starting text ![zzzzzz](ftp://1.1.3.51/asdf.doc) and ![qqq](gopher://hole) ending text"
@@ -39,6 +34,15 @@ def main():
     l2=split_nodes_image([t2])
     for link in l2:
         print(link)
+
+def main():
+    text = "This is **boldy guy** with an *slanty guy* word and a `monospaced guy` and an ![pee en gee](https://i.imgur.com/zjjcJKZ.png) and a [hyper textlink](https://boot.dev)"
+    nodes=text_to_textnodes(text)
+    for node in nodes:
+        print("---")
+        print(node)
+
+
 
 if __name__ == "__main__":
     main()
