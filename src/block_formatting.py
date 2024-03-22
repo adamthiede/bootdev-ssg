@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
@@ -10,3 +11,20 @@ def markdown_to_blocks(markdown):
         if to_add!=(''):
             new_lines.append(to_add)
     return new_lines
+
+def block_to_block_type(block):
+    bsplit=block.split()
+    lsplit=block.split('\n')
+    # Heading
+    if re.search("^[#]{1,6} ",block):
+        return "heading"
+    elif bsplit[0]=='```' and bsplit[len(bsplit)-1]=='```':
+        return "code"
+    elif all(n.startswith("> ") for n in lsplit):
+        return "quote"
+    elif all(n.startswith("- ") for n in lsplit) or all(n.startswith("* ") for n in lsplit):
+        return "unordered_list"
+    elif all(lsplit[x].startswith(f"{x+1}. ") for x in range(0,len(lsplit))):
+        return "ordered_list"
+    else:
+        return "paragraph"
