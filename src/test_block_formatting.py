@@ -1,6 +1,6 @@
 import unittest
 
-from block_formatting import markdown_to_blocks, block_to_block_type
+from block_formatting import markdown_to_blocks, block_to_block_type, markdown_to_html_node
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -34,6 +34,32 @@ This is another paragraph with *italic* text and `code` here
         self.assertEqual(block_to_block_type(head),"heading")
         nohead="####### This is not a heading, too many"
         self.assertEqual(block_to_block_type(nohead),"paragraph")
+
+        code="```\nprint('hello, world')\n```"
+        self.assertEqual(block_to_block_type(code),"code")
+
+    def test_mk2hn(self):
+        my_md="""
+        ## Hello there
+
+        - here 
+        - is 
+        - a 
+        - list
+
+        ```
+        with some code
+        ```
+
+        and a quote
+
+        > according to 
+        > my research
+
+        the end
+        """
+        print(markdown_to_html_node(my_md))
+
 
 if __name__ == "__main__":
     unittest.main()

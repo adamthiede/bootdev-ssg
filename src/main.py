@@ -1,5 +1,6 @@
 from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
+import os
 
 from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
 
@@ -34,15 +35,23 @@ def test_some_nodes():
     l2=split_nodes_image([t2])
     for link in l2:
         print(link)
-
-def main():
     text = "This is **boldy guy** with an *slanty guy* word and a `monospaced guy` and an ![pee en gee](https://i.imgur.com/zjjcJKZ.png) and a [hyper textlink](https://boot.dev)"
     nodes=text_to_textnodes(text)
     for node in nodes:
         print("---")
         print(node)
 
+def dir_copy():
+    src="../static"
+    dst="../public"
+    current_dir=os.getcwd()
+    my_file=__file__
+    print(f"I'm file {my_file} working in {current_dir}")
+    if (os.path.exists(dst) and os.path.exists(src)):
+        print("Okay!")
 
+def main():
+    dir_copy()
 
 if __name__ == "__main__":
     main()
