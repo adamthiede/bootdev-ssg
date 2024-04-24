@@ -1,6 +1,7 @@
 from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
 import os
+import shutil
 
 from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
 
@@ -41,17 +42,31 @@ def test_some_nodes():
         print("---")
         print(node)
 
-def dir_copy():
-    src="../static"
-    dst="../public"
-    current_dir=os.getcwd()
+def dir_copy(from_dir,to_dir):
+    project_dir="/".join(__file__.split('/')[0:-2])
     my_file=__file__
-    print(f"I'm file {my_file} working in {current_dir}")
-    if (os.path.exists(dst) and os.path.exists(src)):
-        print("Okay!")
+
+    full_src=f"{project_dir}/{from_dir}"
+    full_dst=f"{project_dir}/{to_dir}"
+    print(full_src)
+    print(full_dst)
+
+    src_list=os.listdir(full_src)
+    for src_item in src_list:
+        item_path=f"{full_src}/{src_item}"
+        if os.path.isfile(item_path):
+            shutil.copy(item_path, f"{full_dst}/{src_item}")
+            print(f"copied file {item_path}")
+        elif os.path.isdir(item_path):
+            if not os.path.isdir(f"{full_dst}/{src_item}"):
+                os.mkdir(f"{full_dst}/{src_item}")
+                print(f"mk'd dir {item_path}")
+            # recurse here
+            print(f"recursing on {from_dir}/{src_item} and {to_dir}/{src_item}")
+            dir_copy(f"{from_dir}/{src_item}", f"{to_dir}/{src_item}")
 
 def main():
-    dir_copy()
+    dir_copy("static", "public")
 
 if __name__ == "__main__":
     main()
