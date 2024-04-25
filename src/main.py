@@ -4,10 +4,10 @@ import os
 import shutil
 
 from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
+from block_formatting import markdown_to_html_node
 
 def test_some_nodes():
-    ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'})
-    ln2=LeafNode("p", "This is a paragraph of text.")
+    ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'}) ln2=LeafNode("p", "This is a paragraph of text.")
     print(ln)
     print(ln2)
     print(ln.to_html())
@@ -65,8 +65,31 @@ def dir_copy(from_dir,to_dir):
             print(f"recursing on {from_dir}/{src_item} and {to_dir}/{src_item}")
             dir_copy(f"{from_dir}/{src_item}", f"{to_dir}/{src_item}")
 
+def extract_title(markdown):
+    text=open(markdown)
+    lines=text.readlines()
+    title=""
+    for line in lines:
+        if line.startswith("# "):
+            title=line[1:].strip()
+            break
+    if title=="":
+        raise exception("Posts must have a title.")
+    return title
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page {from_path} with template {template_path} to {dest_path}")
+    text=open(from_path)
+    md_lines=text.readlines()
+    html_lines=markdown_to_html_node(md_lines)
+    html_text=""
+    for html_line in html_lines:
+        html_text.append(html_line.to_html())
+
+
 def main():
-    dir_copy("static", "public")
+    #dir_copy("static", "public")
+    #title=extract_title('content/index.md')
 
 if __name__ == "__main__":
     main()
