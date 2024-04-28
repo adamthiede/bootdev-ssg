@@ -36,26 +36,26 @@ def markdown_to_html_node(markdown):
         bt=block_to_block_type(block)
         if bt=="heading":
             headnum=len(block.split(" ")[0])
-            top_children.append(HTMLNode(f"h{headnum}",block,None))
+            top_children.append(LeafNode(f"h{headnum}",block,None))
         elif bt=="code":
             code_lines=block.split('\n')
             code_text="\n".join(code_lines[1:len(code_lines)-1])
-            codeblock=HTMLNode("code",code_text,None)
-            top_children.append(HTMLNode("pre",None,codeblock))
+            codeblock=LeafNode("code",code_text,None)
+            top_children.append(ParentNode("pre",[codeblock]))
         elif bt=="quote":
-            top_children.append(HTMLNode("blockquote",block,None))
+            top_children.append(LeafNode("blockquote",block.replace("\n> ","\n"),None))
         elif bt=="paragraph":
-            top_children.append(HTMLNode("p",block,None))
+            top_children.append(LeafNode("p",block,None))
         elif bt=="unordered_list":
             ul=[]
-            for l in block:
-                ul.append(HTMLNode("li",l,None))
-            top_children.append(HTMLNode("ul",None,ul))
+            for l in block.split("\n"):
+                ul.append(LeafNode("li",l[2:],None))
+            top_children.append(ParentNode("ul",ul))
         elif bt=="ordered_list":
             ol=[]
-            for l in block:
-                ol.append(HTMLNode("li",l,None))
-            top_children.append(HTMLNode("ol",None,ol))
+            for l in block.split("\n"):
+                ol.append(LeafNode("li",l[3:],None))
+            top_children.append(ParentNode("ol",ol))
 
     toplevel=HTMLNode("div", None, top_children)
     return toplevel

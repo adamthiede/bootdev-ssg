@@ -2,12 +2,14 @@ from textnode import TextNode
 from htmlnode import HTMLNode, LeafNode, ParentNode
 import os
 import shutil
+import time
 
 from textnode import split_nodes_delimiter, text_node_to_html_node, extract_markdown_images, extract_markdown_links, split_nodes_link, split_nodes_image, text_to_textnodes
 from block_formatting import markdown_to_html_node
 
 def test_some_nodes():
-    ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'}) ln2=LeafNode("p", "This is a paragraph of text.")
+    ln=LeafNode('a', 'this is a link', {"href":'https://www.boot.dev'})
+    ln2=LeafNode("p", "This is a paragraph of text.")
     print(ln)
     print(ln2)
     print(ln.to_html())
@@ -78,18 +80,74 @@ def extract_title(markdown):
     return title
 
 def generate_page(from_path, template_path, dest_path):
+    ## Print a message to the console that says something like "Generating page from from_path to dest_path using template_path".
+    ## Read the markdown file at from_path and store the contents in a variable.
+    ## Read the template file at template_path and store the contents in a variable.
+    ## Use your markdown_to_html_node function and .to_html() method to convert the markdown file to HTML.
+    ## Use the extract_title function to grab the title of the page.
+    ## Replace the {{ Title }} and {{ Content }} placeholders in the template with the HTML and title you generated.
+    ## Write the new HTML to a file at dest_path. Be sure to create any necessary directories if they don't exist.
     print(f"Generating page {from_path} with template {template_path} to {dest_path}")
-    text=open(from_path)
-    md_lines=text.readlines()
-    html_lines=markdown_to_html_node(md_lines)
-    html_text=""
-    for html_line in html_lines:
-        html_text.append(html_line.to_html())
 
+    text=open(from_path)
+    md_lines=text.read()
+    text.close()
+
+    template_text=open(template_path)
+    template_lines=template_text.read()
+    template_text.close()
+
+    html_lines=markdown_to_html_node(md_lines)
+
+    md_title=extract_title(from_path)
+
+    #elif all(lsplit[x].startswith(f"{x+1}. ") for x in range(0,len(lsplit))):
+
+    html_t=""
+    for x in html_lines.children:
+        html_t+=x.to_html()
+    print(html_t)
+
+    template_lines=template_lines.replace("{{ Title }}", md_title)
+    template_lines=template_lines.replace("{{ Content }}", html_t)
+    print(template_lines)
+
+    content_list=[item for sublist in template_lines for item in sublist]
+
+    dest_file=open(dest_path, mode='w')
+    for line in content_list:
+        dest_file.write(line)
+    dest_file.flush()
+    dest_file.close()
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    # generate pages
+    project_dir="/".join(__file__.split('/')[0:-2])
+
+    full_src=f"{project_dir}/{dir_path_content}"
+    full_dst=f"{project_dir}/{dest_dir_path}"
+    print(full_src)
+    print(full_dst)
+
+    src_list=os.listdir(full_src)
+    for src_item in src_list:
+        item_path=f"{full_src}/{src_item}"
+        dst_item=f"{src_item.split('.')[0]}.html"
+        if os.path.isfile(item_path):
+            generate_page(item_path, template_path, f"{dest_dir_path}/{dst_item}")
+            print(f"generated {item_path}")
+        elif os.path.isdir(item_path):
+            if not os.path.isdir(f"{full_dst}/{src_item}"):
+                os.mkdir(f"{full_dst}/{src_item}")
+                print(f"mk'd dir {item_path}")
+            # recurse here
+            print(f"recursing on {dir_path_content}/{src_item} and {dest_dir_path}/{src_item}")
+            generate_pages_recursive(f"{dir_path_content}/{src_item}", template_path, f"{dest_dir_path}/{src_item}")
 
 def main():
-    #dir_copy("static", "public")
-    #title=extract_title('content/index.md')
+    dir_copy("static", "public")
+    title=extract_title('content/index.md')
+    generate_pages_recursive("content", "template.html", "public")
 
 if __name__ == "__main__":
     main()

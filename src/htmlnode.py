@@ -59,9 +59,9 @@ class ParentNode(HTMLNode):
 
     def to_html(self):
         if self.tag is None:
-            raise Exception(ValueError("No tag for ParentNode"))
+            raise Exception(ValueError(f"No tag for ParentNode with {self.children}"))
         elif self.children is None:
-            raise Exception(ValueError("No children for ParentNode"))
+            raise Exception(ValueError(f"No children for ParentNode {self.tag} with {self.children}"))
         else:
             html=f"<{self.tag}>"
             for node in self.children:
